@@ -6,6 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     try:
+        connection = None  # ADD THIS LINE
         # We try to connect to the database
         connection = pymysql.connect(
             host='mysql-db', # This name matches the Docker Compose file!
