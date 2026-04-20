@@ -1,15 +1,16 @@
-from flask import Flask
+from flask import Flask, render_template
 import pymysql
 
 app = Flask(__name__)
 
+# --- MAIN DATABASE CONNECTION ROUTE ---
 @app.route('/')
 def home():
     try:
-        connection = None  # ADD THIS LINE
+        connection = None
         # We try to connect to the database
         connection = pymysql.connect(
-            host='mysql-db', # This name matches the Docker Compose file!
+            host='mysql-db', 
             user='root',
             password='rootpassword',
             database='myappdb'
@@ -25,19 +26,12 @@ def home():
                 # ignore errors when closing the connection
                 pass
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
-    from flask import Flask, render_template
-
-app = Flask(__name__)
-
-# ... your existing database connection code ...
-
+# --- RPG ENGINE STATUS ROUTE ---
 @app.route('/status')
 def status():
-    # Later, we will query MySQL here to pass your actual live stats to the HTML!
+    # This renders the holographic UI
     return render_template('status.html')
 
+# --- SERVER STARTUP ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
