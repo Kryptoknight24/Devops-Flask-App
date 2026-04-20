@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System | Status</title>
+    <style>
+        /* The System Color Palette */
+        :root {
+            --neon-blue: #00e5ff;
+            --neon-red: #ff3366;
+            --bg-dark: #05050b;
+            --panel-glass: rgba(15, 20, 35, 0.75);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* The Holographic Floating Window */
+        .system-window {
+            background: var(--panel-glass);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2), inset 0 0 10px rgba(0, 229, 255, 0.1);
+            backdrop-filter: blur(8px);
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 4px;
+        }
+
+        /* Header Section */
+        .header-info {
+            border-bottom: 1px dashed var(--neon-blue);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .sub-text {
+            color: #88c0d0;
+            font-size: 14px;
+            margin: 2px 0;
+        }
+
+        /* Health and Experience Bars */
+        .bar-container {
+            margin-bottom: 15px;
+        }
+        
+        .bar-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-bg {
+            background: #111;
+            height: 10px;
+            width: 100%;
+            border: 1px solid #333;
+        }
+
+        .hp-fill {
+            background: var(--neon-red);
+            height: 100%;
+            width: 100%; /* Will be updated dynamically by Flask later */
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+
+        .xp-fill {
+            background: var(--neon-blue);
+            height: 100%;
+            width: 45%; 
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 3px solid var(--neon-blue);
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .stat-name {
+            color: #88c0d0;
+            font-size: 12px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="system-window">
+        <div class="header-info">
+            <h1>PLAYER: DIVYANSHU</h1>
+            <div class="sub-text">LEVEL: 14</div>
+            <div class="sub-text">CLASS: COMPUTER ENGINEER</div>
+            <div class="sub-text">TITLE: TRIVIA COMPETITOR</div>
+        </div>
+
+        <div class="bar-container">
+            <div class="bar-label"><span>HP (Vitality)</span> <span>100/100</span></div>
+            <div class="bar-bg"><div class="hp-fill"></div></div>
+        </div>
+
+        <div class="bar-container">
+            <div class="bar-label"><span>XP (Experience)</span> <span>450/1000</span></div>
+            <div class="bar-bg"><div class="xp-fill"></div></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item"><span class="stat-name">STR</span> 24</div>
+            <div class="stat-item"><span class="stat-name">AGI</span> 18</div>
+            <div class="stat-item"><span class="stat-name">END</span> 21</div>
+            <div class="stat-item"><span class="stat-name">VIT</span> 15</div>
+            <div class="stat-item"><span class="stat-name">INT</span> 32</div>
+            <div class="stat-item" style="border-color: #ffd700;"><span class="stat-name" style="color: #ffd700;">MANA CRYSTALS</span> 1,250</div>
+        </div>
+    </div>
+
+</body>
+</html>

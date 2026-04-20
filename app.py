@@ -27,3 +27,17 @@ def home():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+    from flask import Flask, render_template
+
+app = Flask(__name__)
+
+# ... your existing database connection code ...
+
+@app.route('/status')
+def status():
+    # Later, we will query MySQL here to pass your actual live stats to the HTML!
+    return render_template('status.html')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
