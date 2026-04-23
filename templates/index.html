@@ -26,27 +26,28 @@
         <div id="app"></div>
     </div>
 
+    <script 
+        async 
+        crossorigin="anonymous" 
+        data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+    </script>
+
     <script>
-        const clerkPublishableKey = "pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ";
-        
-        const script = document.createElement('script');
-        script.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
-        script.async = true;
-        script.src = `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
-        
-        script.addEventListener('load', async function () {
+        window.addEventListener('load', async function () {
+            // Initialize the System
             await window.Clerk.load();
+            
             const appDiv = document.getElementById('app');
 
             if (window.Clerk.user) {
                 // If already logged in, enter the System
                 window.location.href = '/status';
             } else {
-                // Otherwise, show the Sign-In box
+                // Otherwise, draw the Sign-In box
                 window.Clerk.mountSignIn(appDiv);
             }
         });
-        document.body.appendChild(script);
     </script>
 </body>
 </html>
