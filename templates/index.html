@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System | Authentication</title>
+    <style>
+        body {
+            background-color: #05050b;
+            color: #00e5ff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container { text-align: center; }
+        #app { margin-top: 30px; display: flex; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>SYSTEM INITIALIZATION</h2>
+        <p>Awaiting Player Authentication...</p>
+        
+        <div id="app"></div>
+    </div>
+
+    <script>
+        const clerkPublishableKey = "pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ";
+        
+        const script = document.createElement('script');
+        script.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
+        script.async = true;
+        script.src = `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+        
+        script.addEventListener('load', async function () {
+            await window.Clerk.load();
+            const appDiv = document.getElementById('app');
+
+            if (window.Clerk.user) {
+                // If already logged in, enter the System
+                window.location.href = '/status';
+            } else {
+                // Otherwise, show the Sign-In box
+                window.Clerk.mountSignIn(appDiv);
+            }
+        });
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
