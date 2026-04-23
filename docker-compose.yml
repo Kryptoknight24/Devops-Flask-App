@@ -7,16 +7,11 @@ services:
     environment:
       - CLERK_SECRET_KEY=sk_test_YHrDfdkKdRwcEWxnzZy7dzJ3RbWAHRXMPhrOoDCJNz
     depends_on:
-      mysql-db:
-        condition: service_healthy
+      - mysql-db
 
   mysql-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword  # Keep your actual password here!
-      MYSQL_DATABASE: myappdb       # Keep your actual db name here!
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: myappdb
+    # We completely removed the complex healthcheck block!
