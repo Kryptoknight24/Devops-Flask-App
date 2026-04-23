@@ -5,28 +5,28 @@ from clerk_backend_api import Clerk
 
 app = Flask(__name__)
 
-# --- CLERK INITIALIZATION ---
-# Fetch the secret key injected by Docker Compose
+# --- CLERK SETUP ---
+# Grabs the secret key we put in your docker-compose.yml
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 clerk = Clerk(bearer_auth=CLERK_SECRET_KEY)
 
-# --- DATABASE HELPER ---
+# --- DATABASE CONNECTION HELPER ---
 def get_db_connection():
     return pymysql.connect(
-        host='mysql-db',
+        host='mysql-db', 
         user='root',
         password='rootpassword',
         database='myappdb',
         cursorclass=pymysql.cursors.DictCursor
     )
 
-# --- 1. THE DATABASE BUILDER ---
+# --- 1. THE DATABASE GENERATOR (This fixes your /init-db issue!) ---
 @app.route('/init-db')
 def init_db():
-    connection = get_db_connection()
     try:
+        connection = get_db_connection()
         with connection.cursor() as cursor:
-            # We use clerk_id as the unique identifier for each player
+            # Creates the table using Clerk IDs to identify players
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS players (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,57 +43,55 @@ def init_db():
                 )
             """)
         connection.commit()
-        return "System Database Initialized for Clerk Auth! Go to the home page (/) to log in."
+        return "SUCCESS: The System Database is initialized! Go to the home page (/) to log in."
     except Exception as e:
-        return f"Initialization Failed: {e}"
+        return f"Database Initialization Failed: {e}"
     finally:
-        connection.close()
+        if 'connection' in locals() and connection:
+            connection.close()
 
-# --- 2. THE FRONT DOOR (LOGIN SCREEN) ---
+# --- 2. MAIN DATABASE CONNECTION / LOGIN ROUTE ---
 @app.route('/')
 def home():
-    # This renders the Clerk login widget from index.html
+    # This renders the Clerk login widget from templates/index.html
     return render_template('index.html')
 
-# --- 3. SECURE RPG ENGINE STATUS ROUTE ---
+# --- 3. RPG ENGINE STATUS ROUTE ---
 @app.route('/status')
 def status():
-    # Step A: Grab the session cookie Clerk placed in the browser
+    # Check for the Clerk cookie
     session_token = request.cookies.get('__session')
     
-    # Step B: If no cookie exists, kick them back to the login screen
     if not session_token:
+        # No cookie = not logged in. Kick them to the front door.
         return redirect('/')
 
     try:
-        # Step C: Ask Clerk to verify the token is legitimate
+        # Verify the cookie with Clerk
         client_state = clerk.clients.verify_token(session_token)
         clerk_user_id = client_state.sub 
 
         connection = get_db_connection()
         try:
             with connection.cursor() as cursor:
-                # Step D: Check if this player already exists in our database
+                # Check if the player exists in your database
                 cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                 player_data = cursor.fetchone()
                 
-                # Step E: If they don't exist, register them as a Level 1 Player
+                # If this is a brand new player, build their profile
                 if not player_data:
                     cursor.execute("INSERT INTO players (clerk_id) VALUES (%s)", (clerk_user_id,))
                     connection.commit()
-                    
-                    # Fetch their newly created stats
                     cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                     player_data = cursor.fetchone()
 
-                # Step F: Render the UI with their actual live RPG stats!
+                # Render the holographic UI with real data
                 return render_template('status.html', player=player_data)
         finally:
             connection.close()
 
     except Exception as e:
         print(f"Auth Error: {e}")
-        # If the token is invalid or expired, redirect to login
         return redirect('/')
 
 # --- SERVER STARTUP ---
