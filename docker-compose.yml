@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "5000:5000"
+    environment:
+      - CLERK_SECRET_KEY=sk_test_YHrDfdkKdRwcEWxnzZy7dzJ3RbWAHRXMPhrOoDCJNz
     depends_on:
       mysql-db:
         condition: service_healthy
