@@ -17,7 +17,8 @@ def get_db_connection():
         user='root',
         password='rootpassword',
         database='myappdb',
-        cursorclass=pymysql.cursors.DictCursor
+        cursorclass=pymysql.cursors.DictCursor,
+        connect_timeout=5  # <--- ADD THIS LINE
     )
 
 # --- 1. THE DATABASE GENERATOR (This fixes your /init-db issue!) ---
