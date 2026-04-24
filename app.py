@@ -46,23 +46,15 @@ def init_db():
         connection.close()
 
 # --- 2. FRONT DOOR ---
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-# --- 3. SECURE STATUS WINDOW ---
 # --- 3. SECURE STATUS WINDOW ---
 @app.route('/status')
 def status():
-    # DIAGNOSTIC PRINT: Show us exactly what the browser is sending
-    print(f"INCOMING COOKIES: {request.cookies}", flush=True)
-    
     # 1. Look for the secure cookie
     session_token = request.cookies.get('__session')
     
+    # If the cookie is missing, stop the loop and tell us!
     if not session_token:
-        print("CRITICAL: Flask received no __session cookie! Kicking player to lobby.", flush=True)
-        return redirect('/')
+        return "<h3>CRITICAL: No __session cookie found by Flask!</h3>"
 
     try:
         # 2. Verify the token is real
@@ -89,5 +81,6 @@ def status():
             connection.close()
 
     except Exception as e:
-        print(f"Auth Error: {e}", flush=True)
-        return redirect('/')
+        # THE FIX: Stop kicking the player back to '/'! 
+        # Print the exact error on the screen so we can see why it's failing.
+        return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
