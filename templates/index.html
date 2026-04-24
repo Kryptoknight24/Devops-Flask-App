@@ -34,15 +34,20 @@
 
     <script>
         window.addEventListener('load', async function () {
-            // Initialize the System
             await window.Clerk.load();
             const appDiv = document.getElementById('app');
 
             if (window.Clerk.user) {
-                // If the player is already logged in, enter the System
+                // THE BYPASS: Manually extract the token from Clerk
+                const token = await window.Clerk.session.getToken();
+                
+                // Force-feed it to the browser as a First-Party Cookie
+                document.cookie = "__session=" + token + "; path=/;";
+                
+                // Now safely enter the System
                 window.location.href = '/status';
             } else {
-                // Otherwise, render the holographic login UI
+                // If not logged in, render the UI normally
                 window.Clerk.mountSignIn(appDiv);
             }
         });
