@@ -5,31 +5,28 @@ from clerk_backend_api import Clerk
 
 app = Flask(__name__)
 
-# --- CLERK SETUP ---
-# Grabs the secret key we put in your docker-compose.yml
+# Initialize Clerk with the Docker environment variable
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 clerk = Clerk(bearer_auth=CLERK_SECRET_KEY)
 
-# --- DATABASE CONNECTION HELPER ---
 def get_db_connection():
     return pymysql.connect(
-        host='mysql-db', 
+        host='mysql-db',
         user='root',
         password='rootpassword',
         database='myappdb',
-        cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=5  # <--- ADD THIS LINE
+        cursorclass=pymysql.cursors.DictCursor
     )
 
-# --- 1. THE DATABASE GENERATOR (This fixes your /init-db issue!) ---
+# --- 1. DATABASE SETUP ---
 @app.route('/init-db')
 def init_db():
+    connection = get_db_connection()
     try:
-        connection = get_db_connection()
         with connection.cursor() as cursor:
-            # Creates the table using Clerk IDs to identify players
+            cursor.execute("DROP TABLE IF EXISTS players")
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS players (
+                CREATE TABLE players (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     clerk_id VARCHAR(255) UNIQUE NOT NULL,
                     level INT DEFAULT 1,
@@ -44,49 +41,43 @@ def init_db():
                 )
             """)
         connection.commit()
-        return "SUCCESS: The System Database is initialized! Go to the home page (/) to log in."
-    except Exception as e:
-        return f"Database Initialization Failed: {e}"
+        return "Database initialized! Go to the homepage (/) to log in."
     finally:
-        if 'connection' in locals() and connection:
-            connection.close()
+        connection.close()
 
-# --- 2. MAIN DATABASE CONNECTION / LOGIN ROUTE ---
+# --- 2. FRONT DOOR ---
 @app.route('/')
 def home():
-    # This renders the Clerk login widget from templates/index.html
     return render_template('index.html')
 
-# --- 3. RPG ENGINE STATUS ROUTE ---
+# --- 3. SECURE STATUS WINDOW ---
 @app.route('/status')
 def status():
-    # Check for the Clerk cookie
+    # 1. Look for the secure cookie
     session_token = request.cookies.get('__session')
-    
     if not session_token:
-        # No cookie = not logged in. Kick them to the front door.
         return redirect('/')
 
     try:
-        # Verify the cookie with Clerk
+        # 2. Verify the token is real
         client_state = clerk.clients.verify_token(session_token)
         clerk_user_id = client_state.sub 
 
         connection = get_db_connection()
         try:
             with connection.cursor() as cursor:
-                # Check if the player exists in your database
+                # 3. Check if player exists
                 cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                 player_data = cursor.fetchone()
                 
-                # If this is a brand new player, build their profile
+                # 4. If new player, build profile
                 if not player_data:
                     cursor.execute("INSERT INTO players (clerk_id) VALUES (%s)", (clerk_user_id,))
                     connection.commit()
                     cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                     player_data = cursor.fetchone()
 
-                # Render the holographic UI with real data
+                # 5. Render stats (Make sure you still have templates/status.html!)
                 return render_template('status.html', player=player_data)
         finally:
             connection.close()
@@ -95,6 +86,6 @@ def status():
         print(f"Auth Error: {e}")
         return redirect('/')
 
-# --- SERVER STARTUP ---
 if __name__ == '__main__':
+    # Flask listens internally; Caddy handles the outside world
     app.run(host='0.0.0.0', port=5000)
