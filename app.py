@@ -51,11 +51,17 @@ def home():
     return render_template('index.html')
 
 # --- 3. SECURE STATUS WINDOW ---
+# --- 3. SECURE STATUS WINDOW ---
 @app.route('/status')
 def status():
+    # DIAGNOSTIC PRINT: Show us exactly what the browser is sending
+    print(f"INCOMING COOKIES: {request.cookies}", flush=True)
+    
     # 1. Look for the secure cookie
     session_token = request.cookies.get('__session')
+    
     if not session_token:
+        print("CRITICAL: Flask received no __session cookie! Kicking player to lobby.", flush=True)
         return redirect('/')
 
     try:
@@ -77,15 +83,11 @@ def status():
                     cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                     player_data = cursor.fetchone()
 
-                # 5. Render stats (Make sure you still have templates/status.html!)
+                # 5. Render stats 
                 return render_template('status.html', player=player_data)
         finally:
             connection.close()
 
     except Exception as e:
-        print(f"Auth Error: {e}")
+        print(f"Auth Error: {e}", flush=True)
         return redirect('/')
-
-if __name__ == '__main__':
-    # Flask listens internally; Caddy handles the outside world
-    app.run(host='0.0.0.0', port=5000)
