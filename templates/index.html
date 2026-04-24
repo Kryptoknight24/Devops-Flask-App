@@ -26,7 +26,7 @@
     </div>
 
     <script 
-        async 
+        async
         crossorigin="anonymous" 
         data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
         src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
@@ -34,14 +34,21 @@
 
     <script>
         window.addEventListener('load', async function () {
+            // Failsafe check
+            if (!window.Clerk) {
+                console.error("Clerk failed to load. Check your network.");
+                return;
+            }
+
+            // Initialize the System
             await window.Clerk.load();
             const appDiv = document.getElementById('app');
 
             if (window.Clerk.user) {
-                // Already logged in? Go straight to the Status window.
+                // If the player is already logged in, enter the System
                 window.location.href = '/status';
             } else {
-                // Otherwise, show the Sign-In box.
+                // Otherwise, render the holographic login UI
                 window.Clerk.mountSignIn(appDiv);
             }
         });
