@@ -14,4 +14,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: myappdb
-    # We completely removed the complex healthcheck block!
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    # This single line commands Caddy to get an SSL cert for your IP and proxy it to Flask!
+    command: caddy reverse-proxy --from 16.112.189.245.nip.io --to web:5000
+    depends_on:
+      - web
