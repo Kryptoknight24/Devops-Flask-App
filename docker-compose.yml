@@ -2,9 +2,8 @@ version: '3.8'
 services:
   web:
     build: .
-    ports:
-      - "5000:5000"
     environment:
+      # Injects the secret key securely into Flask
       - CLERK_SECRET_KEY=sk_test_YHrDfdkKdRwcEWxnzZy7dzJ3RbWAHRXMPhrOoDCJNz
     depends_on:
       - mysql-db
@@ -21,7 +20,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    # This single line commands Caddy to get an SSL cert for your IP and proxy it to Flask!
+    # Generates a free HTTPS certificate for your AWS IP and routes traffic to Flask
     command: caddy reverse-proxy --from 16.112.189.245.nip.io --to web:5000
     depends_on:
       - web

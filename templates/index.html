@@ -22,7 +22,6 @@
     <div class="container">
         <h2>SYSTEM INITIALIZATION</h2>
         <p>Awaiting Player Authentication...</p>
-        
         <div id="app"></div>
     </div>
 
@@ -35,16 +34,14 @@
 
     <script>
         window.addEventListener('load', async function () {
-            // Initialize the System
             await window.Clerk.load();
-            
             const appDiv = document.getElementById('app');
 
             if (window.Clerk.user) {
-                // If already logged in, enter the System
+                // Already logged in? Go straight to the Status window.
                 window.location.href = '/status';
             } else {
-                // Otherwise, draw the Sign-In box
+                // Otherwise, show the Sign-In box.
                 window.Clerk.mountSignIn(appDiv);
             }
         });
