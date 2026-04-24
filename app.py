@@ -5,7 +5,7 @@ from clerk_backend_api import Clerk
 
 app = Flask(__name__)
 
-# Initialize Clerk with the Docker environment variable
+# Initialize Clerk 
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 clerk = Clerk(bearer_auth=CLERK_SECRET_KEY)
 
@@ -41,46 +41,52 @@ def init_db():
                 )
             """)
         connection.commit()
-        return "Database initialized! Go to the homepage (/) to log in."
+        return "Database initialized!"
     finally:
         connection.close()
 
 # --- 2. FRONT DOOR ---
-# --- 3. SECURE STATUS WINDOW ---
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+# --- 3. SECURE STATUS WINDOW (The Diagnostic Trap) ---
 @app.route('/status')
 def status():
-    # 1. Look for the secure cookie
+    # Look for the secure cookie sent by our frontend JavaScript patch
     session_token = request.cookies.get('__session')
     
-    # If the cookie is missing, stop the loop and tell us!
     if not session_token:
         return "<h3>CRITICAL: No __session cookie found by Flask!</h3>"
 
     try:
-        # 2. Verify the token is real
+        # Verify the token is real
         client_state = clerk.clients.verify_token(session_token)
         clerk_user_id = client_state.sub 
 
         connection = get_db_connection()
         try:
             with connection.cursor() as cursor:
-                # 3. Check if player exists
+                # Check if player exists
                 cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                 player_data = cursor.fetchone()
                 
-                # 4. If new player, build profile
+                # If new player, build profile
                 if not player_data:
                     cursor.execute("INSERT INTO players (clerk_id) VALUES (%s)", (clerk_user_id,))
                     connection.commit()
                     cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                     player_data = cursor.fetchone()
 
-                # 5. Render stats 
+                # Render stats 
                 return render_template('status.html', player=player_data)
         finally:
             connection.close()
 
     except Exception as e:
-        # THE FIX: Stop kicking the player back to '/'! 
-        # Print the exact error on the screen so we can see why it's failing.
+        # Stop the redirect loop and print the exact error on the screen
         return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
+
+# --- THE ENGINE STARTER (This was missing!) ---
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
