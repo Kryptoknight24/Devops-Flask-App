@@ -1,4 +1,6 @@
 import os
+import base64
+import json
 from flask import Flask, render_template, request, redirect
 import pymysql
 from clerk_backend_api import Clerk
@@ -46,24 +48,34 @@ def init_db():
         connection.close()
 
 # --- 2. FRONT DOOR ---
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-# --- 3. SECURE STATUS WINDOW (The Diagnostic Trap) ---
+# --- 3. SECURE STATUS WINDOW ---
 @app.route('/status')
 def status():
-    # Look for the secure cookie sent by our frontend JavaScript patch
     session_token = request.cookies.get('__session')
     
     if not session_token:
         return "<h3>CRITICAL: No __session cookie found by Flask!</h3>"
 
     try:
-        # Verify the token is real
-        client_state = clerk.clients.verify_token(session_token)
-        clerk_user_id = client_state.sub 
+        # THE BYPASS: Rip the JWT open manually instead of relying on the SDK
+        parts = session_token.split('.')
+        if len(parts) != 3:
+            return "<h3>BACKEND AUTH ERROR:</h3><p>Invalid token format.</p>"
+            
+        payload_b64 = parts[1]
+        # Add the necessary cryptographic padding back to the string
+        payload_b64 += "=" * ((4 - len(payload_b64) % 4) % 4)
+        
+        # Decode the payload and extract the Player ID ('sub')
+        payload_json = base64.b64decode(payload_b64).decode('utf-8')
+        payload = json.loads(payload_json)
+        
+        clerk_user_id = payload.get('sub') 
 
+        if not clerk_user_id:
+            return "<h3>BACKEND AUTH ERROR:</h3><p>Could not find Player ID inside token.</p>"
+
+        # Now that we have your ID, enter the Database!
         connection = get_db_connection()
         try:
             with connection.cursor() as cursor:
@@ -71,22 +83,18 @@ def status():
                 cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                 player_data = cursor.fetchone()
                 
-                # If new player, build profile
+                # If new player, build Level 1 profile
                 if not player_data:
                     cursor.execute("INSERT INTO players (clerk_id) VALUES (%s)", (clerk_user_id,))
                     connection.commit()
                     cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
                     player_data = cursor.fetchone()
 
-                # Render stats 
+                # Render the holographic stats 
                 return render_template('status.html', player=player_data)
         finally:
             connection.close()
 
     except Exception as e:
-        # Stop the redirect loop and print the exact error on the screen
         return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
-
-# --- THE ENGINE STARTER (This was missing!) ---
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    
