@@ -29,17 +29,11 @@
         async
         crossorigin="anonymous" 
         data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js">
     </script>
 
     <script>
         window.addEventListener('load', async function () {
-            // Failsafe check
-            if (!window.Clerk) {
-                console.error("Clerk failed to load. Check your network.");
-                return;
-            }
-
             // Initialize the System
             await window.Clerk.load();
             const appDiv = document.getElementById('app');
