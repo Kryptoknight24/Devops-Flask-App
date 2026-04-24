@@ -3,7 +3,6 @@ services:
   web:
     build: .
     environment:
-      # Injects the secret key securely into Flask
       - CLERK_SECRET_KEY=sk_test_YHrDfdkKdRwcEWxnzZy7dzJ3RbWAHRXMPhrOoDCJNz
     depends_on:
       - mysql-db
@@ -20,7 +19,16 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    # Generates a free HTTPS certificate for your AWS IP and routes traffic to Flask
-    command: caddy reverse-proxy --from 16.112.189.245.nip.io --to web:5000
+    # THE FIX Part 1: Swap to sslip.io to bypass the Let's Encrypt ban
+    command: caddy reverse-proxy --from 16.112.189.245.sslip.io --to web:5000
     depends_on:
       - web
+    # THE FIX Part 2: Give Caddy permanent storage so Jenkins can't delete the certs
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+# Declare the permanent storage drives at the bottom
+volumes:
+  caddy_data:
+  caddy_config:
