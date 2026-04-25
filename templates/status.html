@@ -394,13 +394,13 @@
     // Chart.js Setup
     const ctx = document.getElementById('radarChart').getContext('2d');
     
-    // Fallbacks if stats are 0, make it at least 1 so chart is visible
+    // Fetch exact stats from the database
     const stats = {
-        str: Math.max({{ player.str_stat }}, 1),
-        agi: Math.max({{ player.agi_stat }}, 1),
-        end: Math.max({{ player.end_stat }}, 1),
-        vit: Math.max({{ player.vit_stat }}, 1),
-        int: Math.max({{ player.int_stat }}, 1)
+        str: {{ player.str_stat }},
+        agi: {{ player.agi_stat }},
+        end: {{ player.end_stat }},
+        vit: {{ player.vit_stat }},
+        int: {{ player.int_stat }}
     };
 
     new Chart(ctx, {
