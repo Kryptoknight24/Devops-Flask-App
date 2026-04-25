@@ -2,6 +2,7 @@ import os
 import base64
 import json
 import pymysql
+import pymysql.cursors
 from flask import Flask, render_template, request, redirect
 from clerk_backend_api import Clerk
 
