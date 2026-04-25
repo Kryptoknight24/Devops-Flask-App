@@ -136,4 +136,7 @@ def status():
     except Exception as e:
         return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
     
