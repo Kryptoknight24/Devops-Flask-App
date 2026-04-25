@@ -402,11 +402,11 @@
         const ctx = document.getElementById('radarChart').getContext('2d');
 
         const stats = {
-            str: parseInt("{{ player.str_stat }}") || 0,
-            agi: parseInt("{{ player.agi_stat }}") || 0,
-            end: parseInt("{{ player.end_stat }}") || 0,
-            vit: parseInt("{{ player.vit_stat }}") || 0,
-            int: parseInt("{{ player.int_stat }}") || 0
+            str: parseInt("{{ player.str_stat }}") || 1,
+            agi: parseInt("{{ player.agi_stat }}") || 1,
+            end: parseInt("{{ player.end_stat }}") || 1,
+            vit: parseInt("{{ player.vit_stat }}") || 1,
+            int: parseInt("{{ player.int_stat }}") || 1
         };
 
         new Chart(ctx, {
@@ -418,9 +418,13 @@
                     backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     borderColor: 'rgba(255, 255, 255, 0.6)',
                     borderWidth: 1,
-                    pointRadius: 0, /* Super minimal: no points, just the line */
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: '#fff'
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#3a86ff',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    hoverBackgroundColor: 'rgba(58, 134, 255, 0.2)',
+                    hoverBorderColor: '#3a86ff'
                 }]
             },
             options: {
@@ -437,8 +441,8 @@
                         ticks: {
                             display: false, /* Hide numbers for maximum minimalism */
                             min: 0,
-                            max: 10,
-                            stepSize: 1
+                            max: 100,
+                            stepSize: 20
                         }
                     }
                 },
