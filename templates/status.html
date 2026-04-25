@@ -4,183 +4,470 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System | Status</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@800&family=Fira+Code&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* The System Color Palette */
         :root {
-            --neon-blue: #00e5ff;
-            --neon-red: #ff3366;
-            --bg-dark: #05050b;
-            --panel-glass: rgba(15, 20, 35, 0.75);
+            --bg-main: #111111;
+            --card-bg: #1c1c1c;
+            --card-border: #2e2e2e;
+            --text-main: #f5f5f5;
+            --text-muted: #8c8c8c;
+            --accent-purple: #9d4edd;
+            --accent-blue: #3a86ff;
+            --accent-gold: #ffb703;
+            --accent-red: #e63946;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
         }
 
-        /* The Holographic Floating Window */
-        .system-window {
-            background: var(--panel-glass);
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2), inset 0 0 10px rgba(0, 229, 255, 0.1);
-            backdrop-filter: blur(8px);
-            width: 90%;
-            max-width: 450px;
-            padding: 30px;
-            border-radius: 4px;
+        .layout-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            max-width: 1300px;
+            width: 100%;
+            justify-content: center;
+            align-items: stretch;
         }
 
-        /* Header Section */
-        .header-info {
-            border-bottom: 1px dashed var(--neon-blue);
-            padding-bottom: 15px;
+        .column {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .col-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #8a2be2, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .sub-header {
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-top: -15px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .avatar-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .card-content {
+            padding: 25px;
+            font-size: 13px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .level-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rank {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .text-blue { color: var(--accent-blue); }
+        .text-gold { color: var(--accent-gold); }
+        .text-purple { color: var(--accent-purple); }
+        .text-red { color: var(--accent-red); }
+
+        .divider {
+            text-align: center;
+            color: #444;
+            margin: 20px 0;
+            font-size: 12px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            height: 1px;
+            background: #444;
+            flex-grow: 1;
+            max-width: 40px;
+        }
+
+        .progress-bar-text {
+            font-family: 'Fira Code', monospace;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .blocks {
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+
+        .xp-info {
+            color: var(--text-main);
+            line-height: 1.8;
+        }
+
+        .new-page-btn {
+            background: rgba(255,255,255,0.02);
+            border: none;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+
+        .new-page-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+        }
+
+        /* Column 2 Specifics */
+        .chart-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .chart-wrapper {
+            width: 100%;
+            max-width: 350px;
+            height: 350px;
+        }
+
+        .chart-footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Column 3 Specifics */
+        .system-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .system-section {
             margin-bottom: 20px;
         }
 
-        h1 {
-            font-size: 24px;
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-            text-shadow: 0 0 5px var(--neon-blue);
-        }
-
-        .sub-text {
-            color: #88c0d0;
+        .sys-label {
+            font-weight: 600;
+            margin-bottom: 5px;
             font-size: 14px;
-            margin: 2px 0;
         }
 
-        /* Health and Experience Bars */
-        .bar-container {
-            margin-bottom: 15px;
+        .sys-value {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .sys-desc {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .quest-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .quest-list li {
+            margin-bottom: 10px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
         }
         
-        .bar-label {
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .bar-bg {
-            background: #111;
-            height: 10px;
-            width: 100%;
-            border: 1px solid #333;
-        }
-
-        .hp-fill {
-            background: var(--neon-red);
-            height: 100%;
-            width: 100%; /* Will be updated dynamically by Flask later */
-            box-shadow: 0 0 8px var(--neon-red);
-        }
-
-        .xp-fill {
-            background: var(--neon-blue);
-            height: 100%;
-            width: 45%; 
-            box-shadow: 0 0 8px var(--neon-blue);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .stat-item {
-            background: rgba(0, 0, 0, 0.5);
-            border-left: 3px solid var(--neon-blue);
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        .stat-name {
-            color: #88c0d0;
-            font-size: 12px;
-            display: block;
-        }
-
-        /* Sign Out Button */
-        .sign-out-btn {
-            margin-top: 25px;
-            width: 100%;
-            padding: 12px;
+        .quest-list input[type="checkbox"] {
+            accent-color: var(--accent-purple);
+            width: 16px;
+            height: 16px;
             background: transparent;
-            border: 1px solid var(--neon-red);
-            color: var(--neon-red);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .sign-out-btn:hover {
-            background: rgba(255, 51, 102, 0.15);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
-            text-shadow: 0 0 5px var(--neon-red);
-        }
+        .mt-10 { margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="system-window">
-        <div class="header-info">
-            <h1>PLAYER: {{ player.player_name | upper }}</h1>
-            <div class="sub-text">LEVEL: {{ player.level }}</div>
-            <div class="sub-text">AGE: {{ player.age }} | WEIGHT: {{ player.weight }}kg | HEIGHT: {{ player.height }}cm</div>
+<div class="layout-container">
+    
+    <!-- Column 1: PLAYER -->
+    <div class="column">
+        <h1 class="col-header">PLAYER</h1>
+        <div class="card">
+            <div class="card-header">
+                <div class="avatar-icon">👤</div>
+                <span>{{ player.player_name }}</span>
+            </div>
+            <img src="/static/images/hero.png" alt="Solo Leveling Hero" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?q=80&w=1500&auto=format&fit=crop';">
+            <div class="card-content">
+                <div class="level-title">📘 Level {{ player.level }} ⚔ | Rising from the Ashes</div>
+                <div class="rank">Rank: <span class="text-blue">C-Rank Hunter</span> <span class="text-gold">⭐⭐⭐</span></div>
+                
+                <div class="divider">⚔️</div>
+                
+                <div class="progress-bar-text">
+                    <!-- Dynamic Progress Bar logic using Jinja -->
+                    {% set max_xp = 1500 %}
+                    {% set current_xp = player.xp %}
+                    {% set filled_blocks = ((current_xp / max_xp) * 10)|int %}
+                    {% set empty_blocks = 10 - filled_blocks %}
+                    <span class="blocks">{% for i in range(filled_blocks) %}█{% endfor %}{% for i in range(empty_blocks) %}▒{% endfor %}</span>
+                    | <span class="text-purple">{{ current_xp }}/{{ max_xp }} XP</span>
+                </div>
+                
+                <div class="xp-info">
+                    You require <span class="text-red">{{ max_xp - current_xp }} XP</span> to complete this level!<br>
+                    XP earned : <span class="text-purple">{{ current_xp }} XP</span><br>
+                    Gold earned 💰 : <span class="text-gold">{{ player.mana_crystals * 50 }} Credits</span>
+                </div>
+            </div>
+            <button class="new-page-btn">+ New page</button>
         </div>
-
-        <div class="bar-container">
-            <div class="bar-label"><span>HP</span> <span>{{ player.hp }}/100</span></div>
-            <div class="bar-bg"><div class="hp-fill" style="width: {{ player.hp }}%;"></div></div>
-        </div>
-
-        <div class="bar-container">
-            <div class="bar-label"><span>XP (Experience)</span> <span>{{ player.xp }}/1000</span></div>
-            <div class="bar-bg"><div class="xp-fill" style="width: {{ (player.xp / 10)|int }}%;"></div></div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-item"><span class="stat-name">STR</span> {{ player.str_stat }}</div>
-            <div class="stat-item"><span class="stat-name">AGI</span> {{ player.agi_stat }}</div>
-            <div class="stat-item"><span class="stat-name">END</span> {{ player.end_stat }}</div>
-            <div class="stat-item"><span class="stat-name">VIT</span> {{ player.vit_stat }}</div>
-            <div class="stat-item"><span class="stat-name">INT</span> {{ player.int_stat }}</div>
-            <div class="stat-item" style="border-color: #ffd700;"><span class="stat-name" style="color: #ffd700;">MANA CRYSTALS</span> {{ player.mana_crystals }}</div>
-        </div>
-
-        <button class="sign-out-btn" onclick="signOut()">⏻ Sign Out</button>
     </div>
 
-    <script 
-        async
-        crossorigin="anonymous" 
-        data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js">
-    </script>
-    <script>
-        async function signOut() {
-            await window.Clerk.load();
-            await window.Clerk.signOut();
-            localStorage.removeItem('rememberMe');
-            document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            window.location.href = '/';
+    <!-- Column 2: STATISTICS -->
+    <div class="column">
+        <h1 class="col-header" style="background: linear-gradient(90deg, #9333ea, #c084fc); -webkit-background-clip: text;">STATISTICS</h1>
+        <div class="sub-header">THE SYSTEM USES ME, AND I USE THE SYSTEM</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="chart-footer">⚡ Powered by ChartBase</div>
+        </div>
+    </div>
+
+    <!-- Column 3: SYSTEM -->
+    <div class="column">
+        <h1 class="col-header" style="background: linear-gradient(90deg, #4f46e5, #9333ea); -webkit-background-clip: text;">SYSTEM</h1>
+        <div class="card">
+            <div class="card-content">
+                <div class="system-title">⚙️ The System</div>
+                
+                <div class="system-section">
+                    <div class="sys-label text-blue">⚡ STREAK STATUS ⚡</div>
+                    <div class="sys-value">Streak: <span class="text-blue">3 Days</span></div>
+                </div>
+
+                <div class="system-section">
+                    <div class="sys-label text-purple">🎁 SYSTEM GIFT 🎁</div>
+                    <div class="sys-value text-purple">1.2x Boost Activated</div>
+                    <div class="sys-value">🟢 Logged-In</div>
+                </div>
+
+                <div class="system-section">
+                    <div class="sys-label text-gold">⚠️ SYSTEM WARNING ⚠️</div>
+                    <div class="sys-value text-gold">⏳ Your Quest is Not Yet Complete!</div>
+                    <div class="sys-desc">Your path is still uncertain. The System urges you to continue...</div>
+                </div>
+
+                <div class="divider">⚔️</div>
+
+                <div class="quests">
+                    <div class="text-muted">📊 Progress: <span class="text-blue">[0/4]</span></div>
+                    <div class="text-muted mt-10">📜 Remaining Quests:</div>
+                    <ul class="quest-list">
+                        <li><input type="checkbox"> 🏋️ Study Programming</li>
+                        <li><input type="checkbox"> 🏃 Workout</li>
+                        <li><input type="checkbox"> 🥋 Learn JavaScript</li>
+                        <li><input type="checkbox"> 📚 Read Atomic Habits</li>
+                    </ul>
+                </div>
+
+                <div class="divider">⚔️</div>
+
+                <div class="challenges">
+                    <div>⚔️ A new challenge awaits! ⚔️</div>
+                    <div class="mt-10 text-muted">🔒 Next Gate unlocks at: <span class="text-gold">4000 XP</span>.</div>
+                    <div class="text-muted">✅ XP Needed: <span class="text-red">{{ 4000 - player.xp }} XP</span></div>
+                    <div class="sys-desc mt-10">The System awaits your next move...</div>
+                </div>
+            </div>
+            <button class="new-page-btn" onclick="signOut()">⏻ Sign Out</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Clerk JS -->
+<script 
+    async
+    crossorigin="anonymous" 
+    data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js">
+</script>
+
+<script>
+    // Chart.js Setup
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
+    // Fallbacks if stats are 0, make it at least 1 so chart is visible
+    const stats = {
+        fit: Math.max({{ player.vit_stat }}, 1),
+        soc: Math.max({{ player.agi_stat }}, 1),
+        int: Math.max({{ player.int_stat }}, 1),
+        dis: Math.max({{ player.end_stat }}, 1),
+        foc: Math.max({{ player.str_stat }}, 1),
+        fin: Math.max({{ player.mana_crystals }}, 1)
+    };
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['FIT', 'SOC', 'INT', 'DIS', 'FOC', 'FIN'],
+            datasets: [{
+                label: 'System Stats',
+                data: [stats.fit, stats.soc, stats.int, stats.dis, stats.foc, stats.fin],
+                backgroundColor: 'rgba(157, 78, 221, 0.25)',
+                borderColor: 'rgba(157, 78, 221, 0.8)',
+                pointBackgroundColor: 'rgba(157, 78, 221, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(157, 78, 221, 1)',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        color: 'rgba(255, 255, 255, 0.05)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        circular: false
+                    },
+                    pointLabels: {
+                        color: '#666',
+                        font: {
+                            family: 'Inter',
+                            size: 11,
+                            weight: '600'
+                        }
+                    },
+                    ticks: {
+                        display: true,
+                        color: '#666',
+                        backdropColor: 'transparent',
+                        font: { size: 10 },
+                        stepSize: 1,
+                        min: 0,
+                        max: 10,
+                        z: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
         }
-    </script>
+    });
+
+    async function signOut() {
+        await window.Clerk.load();
+        await window.Clerk.signOut();
+        localStorage.removeItem('rememberMe');
+        document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        window.location.href = '/';
+    }
+</script>
 
 </body>
 </html>
