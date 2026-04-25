@@ -1,0 +1,10 @@
+{
+  "site_package_search_strategy": "pep561",
+  "search_path": [
+    {"site-package": "flask"},
+    {"site-package": "pymysql"},
+    {"site-package": "clerk_backend_api"}
+  ],
+  "source_directories": ["."],
+  "site_roots": ["venv/Lib/site-packages"]
+}

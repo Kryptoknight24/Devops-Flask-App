@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System | Player Registration</title>
+    <style>
+        :root {
+            --neon-blue: #00e5ff;
+            --neon-green: #39ff14;
+            --bg-dark: #05050b;
+            --panel-glass: rgba(15, 20, 35, 0.75);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .setup-window {
+            background: var(--panel-glass);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2), inset 0 0 10px rgba(0, 229, 255, 0.1);
+            backdrop-filter: blur(8px);
+            width: 90%;
+            max-width: 420px;
+            padding: 35px;
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .subtitle {
+            color: #88c0d0;
+            font-size: 12px;
+            margin-bottom: 25px;
+            border-bottom: 1px dashed var(--neon-blue);
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #88c0d0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+        }
+
+        input::placeholder {
+            color: #444;
+        }
+
+        .unit-hint {
+            font-size: 10px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .submit-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: rgba(57, 255, 20, 0.1);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        /* Scanning animation on the header */
+        @keyframes scan {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .blink {
+            animation: scan 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="setup-window">
+        <h1>▸ Player Registration</h1>
+        <div class="subtitle">SYSTEM REQUIRES PLAYER DATA <span class="blink">_</span></div>
+
+        <form method="POST" action="/setup">
+            <div class="form-group">
+                <label>Player Name</label>
+                <input type="text" name="player_name" placeholder="Enter your name..." required maxlength="50">
+            </div>
+
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" placeholder="0" required min="1" max="150">
+                <div class="unit-hint">years</div>
+            </div>
+
+            <div class="form-group">
+                <label>Weight</label>
+                <input type="number" name="weight" placeholder="0" required min="1" max="500" step="0.1">
+                <div class="unit-hint">kg</div>
+            </div>
+
+            <div class="form-group">
+                <label>Height</label>
+                <input type="number" name="height" placeholder="0" required min="1" max="300" step="0.1">
+                <div class="unit-hint">cm</div>
+            </div>
+
+            <button type="submit" class="submit-btn">▸ Initialize Player</button>
+        </form>
+    </div>
+
+</body>
+</html>

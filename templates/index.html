@@ -16,6 +16,45 @@
         }
         .container { text-align: center; }
         #app { margin-top: 30px; display: flex; justify-content: center; }
+
+        /* Remember Me Prompt */
+        #remember-prompt {
+            display: none;
+            margin-top: 30px;
+        }
+        #remember-prompt p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #88c0d0;
+        }
+        .prompt-btn {
+            padding: 10px 25px;
+            margin: 0 10px;
+            border: 1px solid #00e5ff;
+            background: transparent;
+            color: #00e5ff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .prompt-btn:hover {
+            background: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            text-shadow: 0 0 5px #00e5ff;
+        }
+        .prompt-btn.skip {
+            border-color: #555;
+            color: #888;
+        }
+        .prompt-btn.skip:hover {
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +62,12 @@
         <h2>SYSTEM INITIALIZATION</h2>
         <p>Awaiting Player Authentication...</p>
         <div id="app"></div>
+
+        <div id="remember-prompt">
+            <p>⏻ Remember this device?</p>
+            <button class="prompt-btn" onclick="rememberAndEnter()">Yes, Remember Me</button>
+            <button class="prompt-btn skip" onclick="skipAndEnter()">No, Just This Once</button>
+        </div>
     </div>
 
     <script 
@@ -33,24 +78,60 @@
     </script>
 
     <script>
+        async function enterSystem() {
+            const token = await window.Clerk.session.getToken();
+            document.cookie = "__session=" + token + "; path=/;";
+            window.location.href = '/status';
+        }
+
+        function rememberAndEnter() {
+            localStorage.setItem('rememberMe', 'true');
+            sessionStorage.removeItem('pendingLogin');
+            enterSystem();
+        }
+
+        function skipAndEnter() {
+            sessionStorage.removeItem('pendingLogin');
+            enterSystem();
+        }
+
+        function showSignIn(appDiv) {
+            sessionStorage.setItem('pendingLogin', 'true');
+            window.Clerk.mountSignIn(appDiv);
+        }
+
         window.addEventListener('load', async function () {
             await window.Clerk.load();
             const appDiv = document.getElementById('app');
+            const rememberPrompt = document.getElementById('remember-prompt');
+            const isRemembered = localStorage.getItem('rememberMe') === 'true';
+            const isPendingLogin = sessionStorage.getItem('pendingLogin') === 'true';
 
-            if (window.Clerk.user) {
-                // THE BYPASS: Manually extract the token from Clerk
-                const token = await window.Clerk.session.getToken();
-                
-                // Force-feed it to the browser as a First-Party Cookie
-                document.cookie = "__session=" + token + "; path=/;";
-                
-                // Now safely enter the System
-                window.location.href = '/status';
+            if (window.Clerk.user && isRemembered) {
+                // Remembered user — go straight in
+                enterSystem();
+            } else if (window.Clerk.user && isPendingLogin) {
+                // Just completed login (back from OAuth) — show remember prompt
+                appDiv.style.display = 'none';
+                rememberPrompt.style.display = 'block';
+            } else if (window.Clerk.user && !isRemembered) {
+                // Returning user not remembered — sign out and show login
+                await window.Clerk.signOut();
+                document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                showSignIn(appDiv);
             } else {
-                // If not logged in, render the UI normally
-                window.Clerk.mountSignIn(appDiv);
+                // Not logged in — show sign-in form
+                showSignIn(appDiv);
             }
+
+            // Watch for successful sign-in (email/password, not OAuth)
+            window.Clerk.addListener(({ user }) => {
+                if (user) {
+                    appDiv.style.display = 'none';
+                    rememberPrompt.style.display = 'block';
+                }
+            });
         });
     </script>
 </body>
-</html>
+</html>

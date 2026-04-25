@@ -4,11 +4,14 @@ services:
     build: .
     environment:
       - CLERK_SECRET_KEY=sk_test_YHrDfdkKdRwcEWxnzZy7dzJ3RbWAHRXMPhrOoDCJNz
+      - DB_HOST=mysql-db
     depends_on:
       - mysql-db
 
   mysql-db:
     image: mysql:8.0
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: myappdb

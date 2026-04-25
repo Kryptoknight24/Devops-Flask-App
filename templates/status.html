@@ -110,37 +110,77 @@
             font-size: 12px;
             display: block;
         }
+
+        /* Sign Out Button */
+        .sign-out-btn {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sign-out-btn:hover {
+            background: rgba(255, 51, 102, 0.15);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+            text-shadow: 0 0 5px var(--neon-red);
+        }
     </style>
 </head>
 <body>
 
     <div class="system-window">
         <div class="header-info">
-            <h1>PLAYER: DIVYANSHU</h1>
-            <div class="sub-text">LEVEL: 14</div>
-            <div class="sub-text">CLASS: COMPUTER ENGINEER</div>
-            <div class="sub-text">TITLE: TRIVIA COMPETITOR</div>
+            <h1>PLAYER: {{ player.player_name | upper }}</h1>
+            <div class="sub-text">LEVEL: {{ player.level }}</div>
+            <div class="sub-text">AGE: {{ player.age }} | WEIGHT: {{ player.weight }}kg | HEIGHT: {{ player.height }}cm</div>
         </div>
 
         <div class="bar-container">
-            <div class="bar-label"><span>HP (Vitality)</span> <span>100/100</span></div>
-            <div class="bar-bg"><div class="hp-fill"></div></div>
+            <div class="bar-label"><span>HP</span> <span>{{ player.hp }}/100</span></div>
+            <div class="bar-bg"><div class="hp-fill" style="width: {{ player.hp }}%;"></div></div>
         </div>
 
         <div class="bar-container">
-            <div class="bar-label"><span>XP (Experience)</span> <span>450/1000</span></div>
-            <div class="bar-bg"><div class="xp-fill"></div></div>
+            <div class="bar-label"><span>XP (Experience)</span> <span>{{ player.xp }}/1000</span></div>
+            <div class="bar-bg"><div class="xp-fill" style="width: {{ (player.xp / 10)|int }}%;"></div></div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-item"><span class="stat-name">STR</span> 24</div>
-            <div class="stat-item"><span class="stat-name">AGI</span> 18</div>
-            <div class="stat-item"><span class="stat-name">END</span> 21</div>
-            <div class="stat-item"><span class="stat-name">VIT</span> 15</div>
-            <div class="stat-item"><span class="stat-name">INT</span> 32</div>
-            <div class="stat-item" style="border-color: #ffd700;"><span class="stat-name" style="color: #ffd700;">MANA CRYSTALS</span> 1,250</div>
+            <div class="stat-item"><span class="stat-name">STR</span> {{ player.str_stat }}</div>
+            <div class="stat-item"><span class="stat-name">AGI</span> {{ player.agi_stat }}</div>
+            <div class="stat-item"><span class="stat-name">END</span> {{ player.end_stat }}</div>
+            <div class="stat-item"><span class="stat-name">VIT</span> {{ player.vit_stat }}</div>
+            <div class="stat-item"><span class="stat-name">INT</span> {{ player.int_stat }}</div>
+            <div class="stat-item" style="border-color: #ffd700;"><span class="stat-name" style="color: #ffd700;">MANA CRYSTALS</span> {{ player.mana_crystals }}</div>
         </div>
+
+        <button class="sign-out-btn" onclick="signOut()">⏻ Sign Out</button>
     </div>
+
+    <script 
+        async
+        crossorigin="anonymous" 
+        data-clerk-publishable-key="pk_test_ZXBpYy1naXJhZmZlLTMyLmNsZXJrLmFjY291bnRzLmRldiQ" 
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js">
+    </script>
+    <script>
+        async function signOut() {
+            await window.Clerk.load();
+            await window.Clerk.signOut();
+            localStorage.removeItem('rememberMe');
+            document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            window.location.href = '/';
+        }
+    </script>
 
 </body>
 </html>
