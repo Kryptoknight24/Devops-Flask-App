@@ -396,21 +396,20 @@
     
     // Fallbacks if stats are 0, make it at least 1 so chart is visible
     const stats = {
-        fit: Math.max({{ player.vit_stat }}, 1),
-        soc: Math.max({{ player.agi_stat }}, 1),
-        int: Math.max({{ player.int_stat }}, 1),
-        dis: Math.max({{ player.end_stat }}, 1),
-        foc: Math.max({{ player.str_stat }}, 1),
-        fin: Math.max({{ player.mana_crystals }}, 1)
+        str: Math.max({{ player.str_stat }}, 1),
+        agi: Math.max({{ player.agi_stat }}, 1),
+        end: Math.max({{ player.end_stat }}, 1),
+        vit: Math.max({{ player.vit_stat }}, 1),
+        int: Math.max({{ player.int_stat }}, 1)
     };
 
     new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: ['FIT', 'SOC', 'INT', 'DIS', 'FOC', 'FIN'],
+            labels: ['STRENGTH', 'AGILITY', 'ENDURANCE', 'VITALITY', 'INTELLIGENCE'],
             datasets: [{
                 label: 'System Stats',
-                data: [stats.fit, stats.soc, stats.int, stats.dis, stats.foc, stats.fin],
+                data: [stats.str, stats.agi, stats.end, stats.vit, stats.int],
                 backgroundColor: 'rgba(157, 78, 221, 0.25)',
                 borderColor: 'rgba(157, 78, 221, 0.8)',
                 pointBackgroundColor: 'rgba(157, 78, 221, 1)',
