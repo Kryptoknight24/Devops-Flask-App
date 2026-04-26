@@ -175,8 +175,8 @@
             const isPendingLogin = sessionStorage.getItem('pendingLogin') === 'true';
 
             if (window.Clerk.user && isRemembered) {
-                // Remembered user — go straight in
-                enterSystem();
+                // Remembered user — wait for preloader to finish, then go straight in
+                setTimeout(enterSystem, 3000);
             } else if (window.Clerk.user && isPendingLogin) {
                 // Just completed login (back from OAuth) — show remember prompt
                 appDiv.style.display = 'none';
