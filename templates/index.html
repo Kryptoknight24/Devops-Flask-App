@@ -55,9 +55,75 @@
             box-shadow: none;
             color: #aaa;
         }
+
+        /* Preloader Animation */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 4vw 6vw;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            pointer-events: none;
+        }
+
+        .preloader-words {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .word-mask {
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .preloader-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            color: #f4f4f4;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            transform: translateY(100%);
+            animation: slideUpReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .word-mask:nth-child(1) .preloader-text {
+            animation-delay: 0.1s;
+        }
+
+        .word-mask:nth-child(2) .preloader-text {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes slideUpReveal {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
+        #preloader.slide-up {
+            transform: translateY(-100%);
+        }
     </style>
 </head>
 <body>
+    <div id="preloader">
+        <div class="preloader-words">
+            <div class="word-mask">
+                <div class="preloader-text">Project</div>
+            </div>
+            <div class="word-mask">
+                <div class="preloader-text">ARISE</div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <h2>SYSTEM INITIALIZATION</h2>
         <p>Awaiting Player Authentication...</p>
@@ -131,6 +197,16 @@
                     rememberPrompt.style.display = 'block';
                 }
             });
+        });
+
+        // Preloader Exit Animation
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const preloader = document.getElementById('preloader');
+                if (preloader) {
+                    preloader.classList.add('slide-up');
+                }
+            }, 2200); // Wait for the text to appear and hold briefly before sliding up
         });
     </script>
 </body>
