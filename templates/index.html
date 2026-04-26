@@ -69,8 +69,13 @@
             justify-content: flex-end;
             align-items: flex-end;
             padding: 4vw 6vw;
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
             pointer-events: none;
+            animation: preloaderExit 0.8s cubic-bezier(0.77, 0, 0.175, 1) 2.2s forwards;
+        }
+
+        @keyframes preloaderExit {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); visibility: hidden; }
         }
 
         .preloader-words {
@@ -105,10 +110,6 @@
         @keyframes slideUpReveal {
             0% { transform: translateY(100%); }
             100% { transform: translateY(0); }
-        }
-
-        #preloader.slide-up {
-            transform: translateY(-100%);
         }
     </style>
 </head>
@@ -197,16 +198,6 @@
                     rememberPrompt.style.display = 'block';
                 }
             });
-        });
-
-        // Preloader Exit Animation
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const preloader = document.getElementById('preloader');
-                if (preloader) {
-                    preloader.classList.add('slide-up');
-                }
-            }, 2200); // Wait for the text to appear and hold briefly before sliding up
         });
     </script>
 </body>

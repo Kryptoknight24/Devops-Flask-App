@@ -379,10 +379,77 @@
             margin-left: auto;
         }
 
+        /* Preloader Animation */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 10000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 4vw 6vw;
+            pointer-events: none;
+            animation: preloaderExit 0.8s cubic-bezier(0.77, 0, 0.175, 1) 2.2s forwards;
+        }
+
+        @keyframes preloaderExit {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); visibility: hidden; }
+        }
+
+        .preloader-words {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .word-mask {
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .preloader-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            color: #f4f4f4;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            transform: translateY(100%);
+            animation: slideUpReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .word-mask:nth-child(1) .preloader-text {
+            animation-delay: 0.1s;
+        }
+
+        .word-mask:nth-child(2) .preloader-text {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes slideUpReveal {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
     </style>
 </head>
 
 <body>
+
+    <div id="preloader">
+        <div class="preloader-words">
+            <div class="word-mask">
+                <div class="preloader-text">Project</div>
+            </div>
+            <div class="word-mask">
+                <div class="preloader-text">ARISE</div>
+            </div>
+        </div>
+    </div>
 
     <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 229, 255, 0.02) 50%, rgba(0, 229, 255, 0.02)); background-size: 100% 4px;"></div>
 
