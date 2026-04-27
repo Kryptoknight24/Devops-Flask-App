@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System | Quests</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0a0a0c;
+            --card-bg: #121215;
+            --card-border: rgba(0, 229, 255, 0.15);
+            --text-main: #e0e0e0;
+            --text-muted: #737380;
+            --hud-blue: #00e5ff;
+            --hud-red: #ff2a2a;
+            --hud-gold: #ffb703;
+            --hud-purple: #a100ff;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(16, 16, 20, 1) 0%, rgba(10, 10, 12, 1) 80%),
+                linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 100px 50px 50px; /* Top padding for tab nav */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── Tab Navigation ── */
+        .tab-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: rgba(10, 10, 12, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+        .tab-nav::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--hud-blue), transparent);
+            opacity: 0.4;
+        }
+
+        .tab-nav a {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 28px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-nav a:hover {
+            color: var(--text-main);
+        }
+
+        .tab-nav a.active {
+            color: var(--hud-blue);
+            border-bottom-color: var(--hud-blue);
+            text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+        }
+
+        .tab-nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--hud-blue);
+            box-shadow: 0 0 8px var(--hud-blue);
+        }
+
+        .tab-icon {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        /* ── Quest Window Layout ── */
+        .quest-container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .window-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 6px;
+            color: var(--hud-blue);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+            text-transform: uppercase;
+        }
+
+        .quest-card {
+            background: rgba(18, 18, 21, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--hud-blue), transparent);
+            opacity: 0.8;
+        }
+
+        .quest-card.urgent::before {
+            background: linear-gradient(90deg, transparent, var(--hud-red), transparent);
+        }
+
+        .quest-card.urgent {
+            border-color: rgba(255, 42, 42, 0.3);
+            box-shadow: 0 0 30px rgba(255, 42, 42, 0.05) inset, 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .quest-header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(0, 229, 255, 0.03);
+        }
+
+        .urgent .quest-header {
+            border-bottom-color: rgba(255, 42, 42, 0.2);
+            background: rgba(255, 42, 42, 0.05);
+        }
+
+        .quest-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quest-title .icon {
+            color: var(--hud-blue);
+            text-shadow: 0 0 10px var(--hud-blue);
+        }
+
+        .urgent .quest-title .icon {
+            color: var(--hud-red);
+            text-shadow: 0 0 10px var(--hud-red);
+        }
+
+        .quest-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 4px 10px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--hud-blue);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+
+        .status-urgent {
+            background: rgba(255, 42, 42, 0.1);
+            color: var(--hud-red);
+            border: 1px solid rgba(255, 42, 42, 0.3);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 rgba(255, 42, 42, 0.4); }
+            50% { box-shadow: 0 0 10px rgba(255, 42, 42, 0.2); }
+            100% { box-shadow: 0 0 0 rgba(255, 42, 42, 0); }
+        }
+
+        .quest-body {
+            padding: 30px;
+        }
+
+        .quest-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .objective-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .objective-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .objective-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--hud-blue);
+            border-radius: 3px;
+            background: rgba(0, 229, 255, 0.05);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox:checked {
+            background: var(--hud-blue);
+            box-shadow: 0 0 10px var(--hud-blue);
+        }
+
+        .checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .objective-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .progress-badge {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--hud-blue);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .urgent .progress-badge {
+            background: rgba(255, 42, 42, 0.1);
+            color: var(--hud-red);
+            border-color: rgba(255, 42, 42, 0.3);
+        }
+
+        .rewards-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .rewards-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            color: var(--hud-gold);
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .reward-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 183, 3, 0.1);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--hud-gold);
+            margin-right: 10px;
+        }
+
+        .action-footer {
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-claim {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--hud-blue);
+            color: var(--hud-blue);
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 3px;
+        }
+
+        .btn-claim:hover {
+            background: var(--hud-blue);
+            color: #000;
+            box-shadow: 0 0 15px var(--hud-blue);
+        }
+        
+        .btn-claim:disabled {
+            background: transparent;
+            border-color: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav" id="tabNav">
+        <a href="/status"><span class="tab-icon">◈</span> Status</a>
+        <a href="/quest" class="active"><span class="tab-icon">⚔</span> Quests</a>
+    </nav>
+
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 229, 255, 0.02) 50%, rgba(0, 229, 255, 0.02)); background-size: 100% 4px;"></div>
+
+    <div class="quest-container">
+        <div class="window-header">QUEST_LOG</div>
+
+        <!-- Daily Quest -->
+        <div class="quest-card">
+            <div class="quest-header">
+                <div class="quest-title"><span class="icon">📜</span> DAILY QUEST: PREPARING TO BECOME POWERFUL</div>
+                <div class="quest-status status-active">IN PROGRESS</div>
+            </div>
+            <div class="quest-body">
+                <div class="quest-desc">
+                    "A true hunter builds their strength every single day. Complete the following training regimen to grow stronger."
+                </div>
+                
+                <ul class="objective-list">
+                    <li class="objective-item">
+                        <div class="objective-info">
+                            <input type="checkbox" class="checkbox">
+                            <span class="objective-text">Push-ups</span>
+                        </div>
+                        <span class="progress-badge">0 / 100</span>
+                    </li>
+                    <li class="objective-item">
+                        <div class="objective-info">
+                            <input type="checkbox" class="checkbox">
+                            <span class="objective-text">Sit-ups</span>
+                        </div>
+                        <span class="progress-badge">0 / 100</span>
+                    </li>
+                    <li class="objective-item">
+                        <div class="objective-info">
+                            <input type="checkbox" class="checkbox">
+                            <span class="objective-text">Squats</span>
+                        </div>
+                        <span class="progress-badge">0 / 100</span>
+                    </li>
+                    <li class="objective-item">
+                        <div class="objective-info">
+                            <input type="checkbox" class="checkbox">
+                            <span class="objective-text">Running</span>
+                        </div>
+                        <span class="progress-badge">0 / 10 km</span>
+                    </li>
+                </ul>
+
+                <div class="rewards-section">
+                    <div class="rewards-title">REWARDS</div>
+                    <div class="reward-item">💎 +3 Stat Points</div>
+                    <div class="reward-item">📦 Random Loot Box x1</div>
+                </div>
+            </div>
+            <div class="action-footer">
+                <button class="btn-claim" disabled>[ CLAIM REWARD ]</button>
+            </div>
+        </div>
+
+        <!-- Urgent Quest -->
+        <div class="quest-card urgent">
+            <div class="quest-header">
+                <div class="quest-title"><span class="icon">⚠️</span> URGENT QUEST: PENALTY ZONE</div>
+                <div class="quest-status status-urgent">WARNING</div>
+            </div>
+            <div class="quest-body">
+                <div class="quest-desc" style="color: rgba(255, 42, 42, 0.8);">
+                    "Failure to complete the Daily Quest will result in automatic teleportation to the Penalty Zone. Survive for 4 hours."
+                </div>
+                
+                <ul class="objective-list">
+                    <li class="objective-item" style="border-color: rgba(255, 42, 42, 0.1);">
+                        <div class="objective-info">
+                            <span class="objective-text" style="margin-left: 33px;">Time Remaining</span>
+                        </div>
+                        <span class="progress-badge">03:59:59</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

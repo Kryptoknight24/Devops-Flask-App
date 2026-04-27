@@ -137,6 +137,33 @@ def status():
     except Exception as e:
         return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
 
+# --- 5. QUEST WINDOW ---
+@app.route('/quest')
+def quest():
+    clerk_user_id = get_clerk_user_id()
+    if not clerk_user_id:
+        return "<h3>CRITICAL: No __session cookie found by Flask!</h3>"
+
+    try:
+        connection = get_db_connection()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM players WHERE clerk_id = %s", (clerk_user_id,))
+                player_data = cursor.fetchone()
+                
+                if not player_data:
+                    return redirect('/setup')
+
+                if not player_data.get('player_name'):
+                    return redirect('/setup')
+
+                return render_template('quest.html', player=player_data)
+        finally:
+            connection.close()
+
+    except Exception as e:
+        return f"<h3>BACKEND AUTH ERROR:</h3><p>{str(e)}</p>"
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
     
